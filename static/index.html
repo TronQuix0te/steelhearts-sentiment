@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteelHearts Sentiment Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>SteelHearts Sentiment Dashboard</h1>
+        <span class="subtitle">Real-time community sentiment</span>
+        <span id="ws-status" class="ws-badge disconnected">Disconnected</span>
+    </header>
+
+    <main>
+        <!-- Sentiment Filter -->
+        <section class="filter-bar">
+            <span class="filter-label">Filter:</span>
+            <button class="btn filter-btn active" data-sentiment="">All</button>
+            <button class="btn filter-btn positive-btn" data-sentiment="positive">Positive</button>
+            <button class="btn filter-btn negative-btn" data-sentiment="negative">Negative</button>
+            <button class="btn filter-btn neutral-btn" data-sentiment="neutral">Neutral</button>
+        </section>
+
+        <!-- Overview Cards -->
+        <section class="cards">
+            <div class="card">
+                <div class="card-label">Total Messages</div>
+                <div class="card-value" id="total-count">--</div>
+            </div>
+            <div class="card card-positive">
+                <div class="card-label">Positive</div>
+                <div class="card-value" id="positive-count">--</div>
+            </div>
+            <div class="card card-negative">
+                <div class="card-label">Negative</div>
+                <div class="card-value" id="negative-count">--</div>
+            </div>
+            <div class="card card-neutral">
+                <div class="card-label">Neutral</div>
+                <div class="card-value" id="neutral-count">--</div>
+            </div>
+            <div class="card card-score">
+                <div class="card-label">Avg Score</div>
+                <div class="card-value" id="avg-score">--</div>
+            </div>
+        </section>
+
+        <!-- Timeline Chart -->
+        <section class="chart-container">
+            <div class="chart-header">
+                <h2>Sentiment Timeline</h2>
+                <button class="btn add-moment-btn" id="add-moment-btn">+ Key Moment</button>
+            </div>
+            <div class="chart-controls">
+                <button class="btn active" data-hours="24">24h</button>
+                <button class="btn" data-hours="72">3d</button>
+                <button class="btn" data-hours="168">7d</button>
+                <button class="btn" data-hours="720">30d</button>
+            </div>
+            <canvas id="timeline-chart"></canvas>
+        </section>
+
+        <!-- Key Moment Modal -->
+        <div id="moment-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Add Key Moment</h3>
+                <label>Timestamp (UTC)
+                    <input type="datetime-local" id="moment-timestamp">
+                </label>
+                <label>Label
+                    <input type="text" id="moment-label" placeholder="e.g. Mint Announced">
+                </label>
+                <label>Description
+                    <input type="text" id="moment-desc" placeholder="Optional details">
+                </label>
+                <label>Type
+                    <select id="moment-type">
+                        <option value="announcement">Announcement</option>
+                        <option value="mint">Mint Event</option>
+                        <option value="partnership">Partnership</option>
+                        <option value="incident">Incident</option>
+                    </select>
+                </label>
+                <div class="modal-actions">
+                    <button class="btn" id="moment-cancel">Cancel</button>
+                    <button class="btn accent-btn" id="moment-save">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <section class="bottom-row">
+            <div class="panel channels-panel">
+                <h2>Channels</h2>
+                <div id="channel-list"></div>
+            </div>
+
+            <div class="panel users-panel">
+                <h2>Top Users</h2>
+                <table id="users-table">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Msgs</th>
+                            <th>Avg</th>
+                            <th>+/-</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="panel messages-panel">
+                <h2>Recent Messages</h2>
+                <div id="message-feed"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>
