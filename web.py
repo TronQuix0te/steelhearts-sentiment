@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 import db
 from bot import ws_clients
+from analyzer import generate_insights
 
 log = logging.getLogger(__name__)
 
@@ -69,6 +70,15 @@ async def api_recent(
 @app.get("/api/channels")
 async def api_channels():
     return await db.channel_list()
+
+
+# ── Insights ──
+
+
+@app.get("/api/insights")
+async def api_insights():
+    messages = await db.recent_messages(limit=200)
+    return await generate_insights(messages)
 
 
 # ── Reclassify ──

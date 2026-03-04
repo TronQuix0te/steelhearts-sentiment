@@ -424,6 +424,124 @@ main {
     margin-top: 16px;
 }
 
+/* Insights */
+.insights-section {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.insights-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.insights-loading {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 12px;
+    font-style: italic;
+}
+
+.insights-loading.hidden {
+    display: none;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+@media (max-width: 800px) {
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.insight-panel {
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    padding: 14px;
+}
+
+.insight-panel h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.insight-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.insight-item {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(79, 84, 92, 0.2);
+    font-size: 13px;
+}
+
+.insight-item:last-child {
+    border-bottom: none;
+}
+
+.insight-item-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.insight-item-detail {
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.priority-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-right: 6px;
+}
+
+.priority-high {
+    background: rgba(240, 71, 71, 0.2);
+    color: var(--negative);
+}
+
+.priority-medium {
+    background: rgba(250, 166, 26, 0.2);
+    color: #faa61a;
+}
+
+.priority-low {
+    background: rgba(150, 152, 157, 0.15);
+    color: var(--neutral);
+}
+
+.risk-item .insight-item-title {
+    color: var(--negative);
+}
+
+.opp-item .insight-item-title {
+    color: var(--positive);
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;

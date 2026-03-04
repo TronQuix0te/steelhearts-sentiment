@@ -124,3 +124,88 @@ async def analyze_batch(messages: list[dict]) -> list[dict]:
     except anthropic.APIError as exc:
         log.error("Claude API error: %s", exc)
         return []
+
+
+INSIGHTS_PROMPT = """\
+You are a community intelligence analyst for the SteelHearts NFT project on Discord.
+They had a failed mint (only 20 sold) and are planning a new 10,000 NFT mint in 30 days.
+
+Analyze the following community messages and produce a JSON report with these sections:
+
+1. **action_items**: Concrete things the team should act on right now. Each item has:
+   - "priority": "high" | "medium" | "low"
+   - "title": short action (under 10 words)
+   - "detail": 1-2 sentence explanation with evidence from messages
+
+2. **summary**: A 3-5 sentence narrative summary of the overall community mood,
+   key themes, and how sentiment is trending.
+
+3. **risks**: Emerging concerns or negative patterns the team should watch.
+   Each has "title" and "detail".
+
+4. **opportunities**: Positive signals or community suggestions worth amplifying.
+   Each has "title" and "detail".
+
+Return ONLY valid JSON:
+{
+  "action_items": [...],
+  "summary": "...",
+  "risks": [...],
+  "opportunities": [...]
+}
+
+No markdown fences, no extra text."""
+
+
+# Simple in-memory cache for insights
+_insights_cache: dict = {"data": None, "timestamp": 0}
+INSIGHTS_CACHE_TTL = 300  # 5 minutes
+
+
+async def generate_insights(messages: list[dict]) -> dict:
+    """Generate actionable insights from recent community messages."""
+    import time
+
+    now = time.time()
+    if _insights_cache["data"] and (now - _insights_cache["timestamp"]) < INSIGHTS_CACHE_TTL:
+        return _insights_cache["data"]
+
+    if not messages:
+        return {"action_items": [], "summary": "No messages to analyze.", "risks": [], "opportunities": []}
+
+    if not config.ANTHROPIC_API_KEY or config.ANTHROPIC_API_KEY.startswith("your-"):
+        return {"action_items": [], "summary": "No API key configured.", "risks": [], "opportunities": []}
+
+    # Build message context with sentiment labels
+    lines = []
+    for m in messages[:200]:  # cap at 200 messages
+        sent = f" [{m.get('sentiment', '?')}]" if m.get("sentiment") else ""
+        lines.append(f"[{m.get('author_name', '?')}]{sent}: {_clean(m.get('content', ''))}")
+
+    user_content = "\n".join(lines)
+
+    client = _get_client()
+    try:
+        response = await client.messages.create(
+            model=config.CLAUDE_MODEL,
+            max_tokens=2048,
+            system=INSIGHTS_PROMPT,
+            messages=[{"role": "user", "content": user_content}],
+        )
+
+        raw = response.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = re.sub(r"\s*```$", "", raw)
+
+        result = json.loads(raw)
+        _insights_cache["data"] = result
+        _insights_cache["timestamp"] = now
+        return result
+
+    except (json.JSONDecodeError, KeyError, ValueError) as exc:
+        log.warning("Failed to parse insights response: %s", exc)
+        return {"action_items": [], "summary": "Failed to generate insights.", "risks": [], "opportunities": []}
+    except anthropic.APIError as exc:
+        log.error("Claude API error (insights): %s", exc)
+        return {"action_items": [], "summary": "API error generating insights.", "risks": [], "opportunities": []}

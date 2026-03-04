@@ -92,6 +92,33 @@
             </div>
         </div>
 
+        <!-- Insights -->
+        <section class="insights-section">
+            <div class="insights-header">
+                <h2>Insights</h2>
+                <button class="btn accent-btn" id="refresh-insights">Refresh</button>
+            </div>
+            <div id="insights-loading" class="insights-loading hidden">Analyzing community messages...</div>
+            <div class="insights-grid">
+                <div class="insight-panel">
+                    <h3>Summary</h3>
+                    <p id="insights-summary" class="insight-text">--</p>
+                </div>
+                <div class="insight-panel">
+                    <h3>Action Items</h3>
+                    <div id="insights-actions"></div>
+                </div>
+                <div class="insight-panel">
+                    <h3>Risks</h3>
+                    <div id="insights-risks"></div>
+                </div>
+                <div class="insight-panel">
+                    <h3>Opportunities</h3>
+                    <div id="insights-opportunities"></div>
+                </div>
+            </div>
+        </section>
+
         <!-- Bottom Row -->
         <section class="bottom-row">
             <div class="panel channels-panel">

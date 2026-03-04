@@ -355,6 +355,72 @@ function connectWebSocket() {
     }, 30000);
 }
 
+// ── Insights ──
+
+async function loadInsights() {
+    const loading = document.getElementById("insights-loading");
+    loading.classList.remove("hidden");
+
+    try {
+        const data = await fetchJSON("/api/insights");
+
+        // Summary
+        document.getElementById("insights-summary").textContent = data.summary || "No insights available.";
+
+        // Action Items
+        const actionsEl = document.getElementById("insights-actions");
+        if (data.action_items && data.action_items.length) {
+            actionsEl.innerHTML = data.action_items.map(a => {
+                const pClass = `priority-${a.priority || "low"}`;
+                return `<div class="insight-item">
+                    <div class="insight-item-title">
+                        <span class="priority-badge ${pClass}">${a.priority || "low"}</span>
+                        ${escapeHtml(a.title)}
+                    </div>
+                    <div class="insight-item-detail">${escapeHtml(a.detail)}</div>
+                </div>`;
+            }).join("");
+        } else {
+            actionsEl.innerHTML = '<div class="insight-item"><div class="insight-item-detail">No action items.</div></div>';
+        }
+
+        // Risks
+        const risksEl = document.getElementById("insights-risks");
+        if (data.risks && data.risks.length) {
+            risksEl.innerHTML = data.risks.map(r =>
+                `<div class="insight-item risk-item">
+                    <div class="insight-item-title">${escapeHtml(r.title)}</div>
+                    <div class="insight-item-detail">${escapeHtml(r.detail)}</div>
+                </div>`
+            ).join("");
+        } else {
+            risksEl.innerHTML = '<div class="insight-item"><div class="insight-item-detail">No risks detected.</div></div>';
+        }
+
+        // Opportunities
+        const oppEl = document.getElementById("insights-opportunities");
+        if (data.opportunities && data.opportunities.length) {
+            oppEl.innerHTML = data.opportunities.map(o =>
+                `<div class="insight-item opp-item">
+                    <div class="insight-item-title">${escapeHtml(o.title)}</div>
+                    <div class="insight-item-detail">${escapeHtml(o.detail)}</div>
+                </div>`
+            ).join("");
+        } else {
+            oppEl.innerHTML = '<div class="insight-item"><div class="insight-item-detail">No opportunities detected.</div></div>';
+        }
+    } catch (err) {
+        document.getElementById("insights-summary").textContent = "Failed to load insights.";
+    } finally {
+        loading.classList.add("hidden");
+    }
+}
+
+document.getElementById("refresh-insights").addEventListener("click", () => {
+    // Force cache bust by adding timestamp
+    loadInsights();
+});
+
 // ── Key Moments Modal ──
 
 function setupMomentModal() {
@@ -453,6 +519,7 @@ async function init() {
     ]);
     setupMomentModal();
     connectWebSocket();
+    loadInsights();
 }
 
 init();
